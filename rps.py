@@ -16,6 +16,14 @@ print(game_folder)
 # 
 choices = ("rock", "paper", "scissors")
 
+def draw_text(text, size, color, x, y):
+    font_name = pg.font.match_font('arial')
+    font = pg.font.Font(font_name, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x,y)
+    screen.blit(text_surface, text_rect)
+
 def cpu_randchoice():
     # computer decides
     print("computer randomly decides . . .")
@@ -24,30 +32,6 @@ def cpu_randchoice():
     # allows computer to randomly choose one of the options 
     cpu_randdecision = choices[randint(0,2)]
     return cpu_randdecision
-
-def compare():
-    # compares that decisions that both players made and, if tied then print the message
-    if player_choice == cpu_choice:
-        print ("tie")
-    # compares outputs and prints out message (applies to all other "elif" command)
-    elif player_choice == "rock" and cpu_choice == choices[2]: 
-        print ("good job")
-        print (player_choice + " beats " + cpu_choice)
-    elif player_choice == "paper" and cpu_choice == choices[0]:
-        print("good job")
-        print (player_choice + " beats " + cpu_choice)
-    elif player_choice == "scissors" and cpu_choice == choices[1]:
-        print ("good job")
-        print (player_choice + " beats " + cpu_choice)
-    elif player_choice == "rock" and cpu_choice == choices[1]: 
-        print ("failure,")
-        print (cpu_choice + " beats " + player_choice)
-    elif player_choice == "scissors" and cpu_choice == choices[0]:
-        print("failure")
-        print (cpu_choice + " beats " + player_choice)
-    elif player_choice == "paper" and cpu_choice == choices[2]:
-        print ("failure")
-        print (cpu_choice + " beats " + player_choice)
 # game settings
 WIDTH=900
 HEIGHT=900
@@ -74,20 +58,17 @@ clock = pg.time.Clock()
 rock_image=pg.image.load(os.path.join(game_folder, "rock.jpg")).convert()
 # storing not the pixels themselves, but where they are and how many there are 
 rock_image_rect = rock_image.get_rect()
-# sets coordinates for the rock image to display on screen
-rock_image_rect.x = 150
-rock_image_rect.y = 300
+cpu_rock_image_rect = rock_image.get_rect()
 paper_image=pg.image.load(os.path.join(game_folder, "paper.jpg")).convert()
 paper_image_rect = paper_image.get_rect()
-# sets coordinates for the paper image to display on screen
-paper_image_rect.x = 450
-paper_image_rect.y = 300
+cpu_paper_image_rect = paper_image.get_rect()
 scissors_image=pg.image.load(os.path.join(game_folder, "scissors.jpg")).convert()
 scissors_image_rect = scissors_image.get_rect()
-scissors_image_rect.x = 700
-scissors_image_rect.y = 300
+cpu_scissors_image_rect = scissors_image.get_rect()
+
 # starts true-false statement
 running = True
+start_sceen= True
 # assigns player choice and cpu choice to whatever can be inside the quotation marks
 player_choice = ""
 cpu_choice = ""
@@ -101,6 +82,11 @@ while running:
         # when cursor presses the massive "x" button top right to quit
         if event.type == pg.QUIT:
             running=False
+        
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE:
+                print ("Let the games begin")
+                start_sceen = False
         if event.type == pg.MOUSEBUTTONUP:
             # displays coordinates of whatever the mouse clicked on
                 ############# get user input#################
@@ -114,16 +100,16 @@ while running:
             if rock_image_rect.collidepoint(mouse_coords):
                 print("THE ROCK")
                 player_choice = "rock"
-                cpu_choice = cpu_randchoice
+                cpu_choice = cpu_randchoice()
                 # rock_image_rect.y += 3
             elif paper_image_rect.collidepoint(mouse_coords):
                 print("PAPER")
                 player_choice = "paper"
-                cpu_choice = cpu_randchoice
+                cpu_choice = cpu_randchoice()
             elif scissors_image_rect.collidepoint(mouse_coords):
                 print("SCISSORS")
                 player_choice = "scissors"
-                cpu_choice = cpu_randchoice
+                cpu_choice = cpu_randchoice()
             else: 
                 print ("void")
                 # print(rock_image_rect.collidepoint(mouse_coords))
@@ -145,10 +131,85 @@ while running:
 
     ####################### draw ########################
     screen.fill(BLACK)
-    # shows images of either the rock, paper, or the scissors 
     screen.blit(rock_image, rock_image_rect)
     screen.blit(paper_image, paper_image_rect)
     screen.blit(scissors_image, scissors_image_rect)
+    # computer checks if the player hit the space bar when it is on the starting screen
+    if start_sceen:
+       draw_text("Press space to play rock paper scissors", 22, WHITE, WIDTH/2, HEIGHT/10)
+    rock_image_rect.x = 2000
+    paper_image_rect.x = 2000
+    scissors_image_rect.x = 2000
+    if not start_sceen and player_choice == "":
+    # shows images of either the rock, paper, or the scissors
+        rock_image_rect.x = 150
+        rock_image_rect.y = 300
+        paper_image_rect.x = 450
+        paper_image_rect.y = 300
+        scissors_image_rect.x = 700
+        scissors_image_rect.y = 300 
+
+    
+# checks if either the computer won, the player won, or if it was a tie
+    if player_choice == "rock":
+        if cpu_choice == "rock":
+            rock_image_rect.x = 500
+            cpu_rock_image_rect.x = 700
+            screen.blit(rock_image, rock_image_rect)
+            screen.blit(rock_image, cpu_rock_image_rect)
+            draw_text("You tied!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+        if cpu_choice == "paper":
+            rock_image_rect.x = 500
+            cpu_paper_image_rect.x = 700
+            screen.blit(rock_image, rock_image_rect)
+            screen.blit(paper_image, cpu_paper_image_rect)
+            draw_text("You lost!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+        if cpu_choice == "scissors":
+            rock_image_rect.x = 500
+            cpu_scissors_image_rect.x = 700
+            screen.blit(rock_image, rock_image_rect)
+            screen.blit(scissors_image, cpu_scissors_image_rect)
+            draw_text("You win!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+    if player_choice == "paper":
+        if cpu_choice == "rock":
+            paper_image_rect.x = 500
+            cpu_rock_image_rect.x =700
+            screen.blit(paper_image, paper_image_rect)
+            screen.blit(rock_image, cpu_rock_image_rect)
+            draw_text("You win!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+        if cpu_choice == "paper":
+            paper_image_rect.x = 500
+            cpu_paper_image_rect.x = 700
+            screen.blit(paper_image, paper_image_rect)
+            screen.blit(paper_image, cpu_paper_image_rect)
+            draw_text("You tied!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+        if cpu_choice == "scissors":
+            paper_image_rect.x = 500
+            cpu_scissors_image_rect.x = 700
+            screen.blit(paper_image, paper_image_rect)
+            screen.blit(scissors_image, cpu_scissors_image_rect)
+            draw_text("You lost!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+    if player_choice == "scissors":
+        if cpu_choice == "rock":
+            scissors_image_rect.x = 500
+            cpu_rock_image_rect.x = 700
+            screen.blit(scissors_image, scissors_image_rect)
+            screen.blit(rock_image, cpu_rock_image_rect)
+            draw_text("You lost!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+        if cpu_choice == "paper":
+            scissors_image_rect.x = 500
+            cpu_paper_image_rect.x = 700
+            screen.blit(scissors_image, scissors_image_rect)
+            screen.blit(paper_image, cpu_paper_image_rect)
+            draw_text("You win!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+        if cpu_choice == "scissors":
+            scissors_image_rect.x = 500
+            cpu_scissors_image_rect.x = 700
+            screen.blit(scissors_image, scissors_image_rect)
+            screen.blit(scissors_image, cpu_scissors_image_rect)
+            draw_text("You tied!!!", 22, WHITE, WIDTH/2, HEIGHT/10)
+
+
     pg.display.flip()
 
 pg.quit()
